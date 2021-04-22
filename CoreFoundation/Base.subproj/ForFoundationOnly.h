@@ -57,7 +57,7 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #endif
 
 #if (INCLUDE_OBJC || TARGET_OS_MAC || TARGET_OS_WIN32) && !DEPLOYMENT_RUNTIME_SWIFT
-#include <objc/message.h>
+//#include <objc/message.h>
 #endif
 
 /* These functions implement standard error handling for reallocation. Their parameters match their unsafe variants (realloc/CFAllocatorReallocate). They differ from reallocf as they provide a chance for you to clean up a buffers contents (in addition to freeing the buffer, etc.)
@@ -469,6 +469,15 @@ _CF_EXPORT_SCOPE_END
 #include <sys/stat.h>
 
 _CF_EXPORT_SCOPE_BEGIN
+
+typedef void *_CFThreadRef;
+typedef struct _CFThreadAttributes {
+  unsigned long dwSizeOfAttributes;
+  unsigned long dwThreadStackReservation;
+} _CFThreadAttributes;
+typedef unsigned long _CFThreadSpecificKey;
+
+static CFOptionFlags _CFAllocatorHintZeroWhenAllocating = 1;
 
 // These are replacements for POSIX calls on Windows, ensuring that the UTF8 parameters are converted to UTF16 before being passed to Windows
 CF_EXPORT int _NS_stat(const char *name, struct _stat *st);

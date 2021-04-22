@@ -46,11 +46,11 @@ include(SwiftSupport)
 include(GNUInstallDirs)
 include(XCTest)
 
-set(CF_DEPLOYMENT_SWIFT YES CACHE BOOL "Build for Swift" FORCE)
+#set(CF_DEPLOYMENT_SWIFT YES CACHE BOOL "Build for Swift" FORCE)
 
 set(SAVED_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-set(BUILD_SHARED_LIBS NO)
-add_subdirectory(CoreFoundation EXCLUDE_FROM_ALL)
+#set(BUILD_SHARED_LIBS NO)
+add_subdirectory(CoreFoundation)
 set(BUILD_SHARED_LIBS ${SAVED_BUILD_SHARED_LIBS})
 
 # Setup include paths for uuid/uuid.h
@@ -66,7 +66,7 @@ target_include_directories(CoreFoundation PRIVATE
   ${CMAKE_BINARY_DIR}/uuid-headers
   ${CMAKE_CURRENT_BINARY_DIR}/CoreFoundation.framework/Headers)
 
-add_subdirectory(Sources)
+#add_subdirectory(Sources)
 if(ENABLE_TESTING)
   find_package(XCTest CONFIG REQUIRED)
   add_subdirectory(Tests)

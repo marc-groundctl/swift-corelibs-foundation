@@ -84,7 +84,9 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
   # static CRT causes problems for users of the library.
   add_compile_definitions($<$<COMPILE_LANGUAGE:C>:_DLL>)
   if(BUILD_SHARED_LIBS)
-    add_compile_definitions($<$<COMPILE_LANGUAGE:C>:_WINDLL)
+    #add_compile_definitions($<$<COMPILE_LANGUAGE:C>:_WINDLL)
+	# work around CMake bug
+	add_compile_definitions(_WINDLL)
   endif()
 endif()
 
@@ -219,7 +221,8 @@ add_framework(CoreFoundation
                 Base.subproj/CFByteOrder.h
                 Base.subproj/CFUUID.h
                 Base.subproj/CFUtilities.h
-                Base.subproj/SwiftRuntime/CoreFoundation.h
+                #Base.subproj/SwiftRuntime/CoreFoundation.h
+                Base.subproj/CoreFoundation.h
                 Base.subproj/SwiftRuntime/TargetConditionals.h
                 # Collections
                 Collections.subproj/CFArray.h
@@ -367,7 +370,10 @@ add_framework(CoreFoundation
                 URL.subproj/CFURLAccess.c
                 URL.subproj/CFURL.c
                 URL.subproj/CFURLComponents.c
-                URL.subproj/CFURLComponents_URIParser.c)
+                URL.subproj/CFURLComponents_URIParser.c
+
+                ../Sources/UUID/uuid.c
+				)
 target_compile_definitions(CoreFoundation
                            PRIVATE
                              $<$<COMPILE_LANGUAGE:ASM>:CF_CHARACTERSET_BITMAP="CharacterSets/CFCharacterSetBitmaps.bitmap">

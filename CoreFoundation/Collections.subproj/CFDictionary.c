@@ -72,7 +72,7 @@ static CFBasicHashRef __CFDictionaryCreateGeneric(CFAllocatorRef allocator, cons
 }
 
 CF_PRIVATE CFDictionaryRef __CFDictionaryCreateTransfer(CFAllocatorRef allocator, void const **klist, void const **vlist, CFIndex numValues) {
-#if !DEPLOYMENT_RUNTIME_SWIFT
+#if !DEPLOYMENT_RUNTIME_SWIFT && false
     CF_PRIVATE CFDictionaryRef __NSCFDictionaryCreateTransfer(CFAllocatorRef allocator, const id *klist, const id *vlist, CFIndex numValues);
     CFDictionaryRef nsResult = __NSCFDictionaryCreateTransfer(allocator, (const id *)klist, (const id *)vlist, numValues);
     if (nsResult) {
@@ -109,7 +109,7 @@ CF_PRIVATE CFDictionaryRef __CFDictionaryCreateTransfer(CFAllocatorRef allocator
 }
 
 CFDictionaryRef CFDictionaryCreate(CFAllocatorRef allocator, void const **klist, void const **vlist, CFIndex numValues, const CFDictionaryKeyCallBacks *keyCallBacks, const CFDictionaryValueCallBacks *valueCallBacks) {
-#if !DEPLOYMENT_RUNTIME_SWIFT
+#if !DEPLOYMENT_RUNTIME_SWIFT && false
     CF_PRIVATE CFDictionaryRef __NSCFDictionaryCreate(CFAllocatorRef allocator, void const **klist, void const **vlist, CFIndex numValues, const CFDictionaryKeyCallBacks *keyCallBacks, const CFDictionaryValueCallBacks *valueCallBacks);
     CFDictionaryRef nsResult = __NSCFDictionaryCreate(allocator, klist, vlist, numValues, keyCallBacks, valueCallBacks);
     if (nsResult) {
@@ -131,7 +131,7 @@ CFDictionaryRef CFDictionaryCreate(CFAllocatorRef allocator, void const **klist,
 }
 
 CFMutableDictionaryRef CFDictionaryCreateMutable(CFAllocatorRef allocator, CFIndex capacity, const CFDictionaryKeyCallBacks *keyCallBacks, const CFDictionaryValueCallBacks *valueCallBacks) {
-#if !DEPLOYMENT_RUNTIME_SWIFT
+#if !DEPLOYMENT_RUNTIME_SWIFT && false
     CF_PRIVATE CFMutableDictionaryRef __NSCFDictionaryCreateMutable(CFAllocatorRef allocator, CFIndex capacity, const CFDictionaryKeyCallBacks *keyCallBacks, const CFDictionaryValueCallBacks *valueCallBacks);
     CFMutableDictionaryRef nsResult = __NSCFDictionaryCreateMutable(allocator, capacity, keyCallBacks, valueCallBacks);
     if (nsResult) {

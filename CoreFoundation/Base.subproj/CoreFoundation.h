@@ -87,7 +87,7 @@
 
 #include <CoreFoundation/CFUserNotification.h>
 
-#if !DEPLOYMENT_RUNTIME_SWIFT
+#if !DEPLOYMENT_RUNTIME_SWIFT && false
 #include <CoreFoundation/CFXMLNode.h>
 #include <CoreFoundation/CFXMLParser.h>
 #endif
