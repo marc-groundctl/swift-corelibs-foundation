@@ -84,9 +84,7 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL Windows)
   # static CRT causes problems for users of the library.
   add_compile_definitions($<$<COMPILE_LANGUAGE:C>:_DLL>)
   if(BUILD_SHARED_LIBS)
-    #add_compile_definitions($<$<COMPILE_LANGUAGE:C>:_WINDLL)
-	# work around CMake bug
-	add_compile_definitions(_WINDLL)
+    add_compile_definitions($<$<COMPILE_LANGUAGE:C>:_WINDLL>)
   endif()
 endif()
 
