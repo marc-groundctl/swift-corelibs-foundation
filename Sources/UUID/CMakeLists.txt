@@ -10,7 +10,7 @@ endif()
 
 # Add an include directory for the CoreFoundation framework headers to satisfy
 # the dependency on TargetConditionals.h
-add_dependencies(uuid CoreFoundation)
+add_dependencies(uuid CoreFoundation_POPULATE_HEADERS)
 target_include_directories(uuid PUBLIC
   ${CMAKE_BINARY_DIR}/CoreFoundation.framework/Headers)
 
