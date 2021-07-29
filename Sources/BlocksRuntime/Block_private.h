@@ -210,14 +210,14 @@ BLOCK_EXPORT void * _NSConcreteWeakBlockVariable[32];
 
 
 // the intercept routines that must be used under GC
-BLOCK_EXPORT void _Block_use_GC( void *(*alloc)(const unsigned long, const bool isOne, const bool isObject),
+BLOCK_EXPORT void _Block_use_GC( void *(*alloc)(size_t, const bool isOne, const bool isObject),
                                   void (*setHasRefcount)(const void *, const bool),
                                   void (*gc_assign_strong)(void *, void **),
                                   void (*gc_assign_weak)(const void *, void *),
                                   void (*gc_memmove)(void *, void *, unsigned long));
 
 // earlier version, now simply transitional
-BLOCK_EXPORT void _Block_use_GC5( void *(*alloc)(const unsigned long, const bool isOne, const bool isObject),
+BLOCK_EXPORT void _Block_use_GC5( void *(*alloc)(size_t, const bool isOne, const bool isObject),
                                   void (*setHasRefcount)(const void *, const bool),
                                   void (*gc_assign_strong)(void *, void **),
                                   void (*gc_assign_weak)(const void *, void *));
