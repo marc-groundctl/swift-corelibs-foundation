@@ -1673,7 +1673,12 @@ static void _perform(void* info)
 #endif
 }
 
-static void* _legacyStreamRunLoop_workThread(void* arg)
+#if TARGET_OS_WIN32
+static unsigned int WINAPI
+#else
+static void*
+#endif
+_legacyStreamRunLoop_workThread(void* arg)
 {
 #if TARGET_OS_LINUX
     pthread_setname_np(pthread_self(), "com.apple.CFStream.LegacyThread");
@@ -1732,7 +1737,7 @@ static void* _legacyStreamRunLoop_workThread(void* arg)
 #endif
     }
 
-    return NULL;
+    return 0;
 }
 
 static CFRunLoopRef _legacyStreamRunLoop()
@@ -1747,7 +1752,7 @@ static CFRunLoopRef _legacyStreamRunLoop()
 #if TARGET_OS_WIN32
             HANDLE hThread =
                 (HANDLE)_beginthreadex(NULL, 0,
-                                       (_beginthreadex_proc_type)_legacyStreamRunLoop_workThread,
+                                       _legacyStreamRunLoop_workThread,
                                        &sem, 0, NULL);
             CloseHandle(hThread);
 #else
