@@ -280,7 +280,7 @@ CF_EXPORT CFStringRef _CFStringCreateByAddingPercentEncodingWithAllowedCharacter
             }
             else {
                 // not big enough? malloc it.
-                CFIndex mallocSize;
+                size_t mallocSize;
                 if ( _CFMultiplyBufferSizeWithoutOverflow(maxBufferSize, 4, &mallocSize) ) {
                     if (mallocSize >= 0) {
                         inBuf = (UInt8 *)malloc(mallocSize);
@@ -457,7 +457,7 @@ CF_EXPORT CFStringRef _CFStringCreateByRemovingPercentEncoding(CFAllocatorRef al
             }
             else {
                 // not big enough? malloc it.
-                CFIndex mallocSize;
+                size_t mallocSize;
                 if ( _CFMultiplyBufferSizeWithoutOverflow(maxBufferSize, 2, &mallocSize) ) {
                     if (mallocSize >= 0) {
                         encodedBuf = (UInt8 *)malloc(mallocSize);
