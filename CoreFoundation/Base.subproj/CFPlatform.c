@@ -607,7 +607,6 @@ CF_EXPORT CFMutableStringRef _CFCreateApplicationRepositoryPath(CFAllocatorRef a
 #if TARGET_OS_WIN32
 
 CF_EXPORT void _NS_pthread_setname_np(const char *name) {
-  _CFThreadSetName(GetCurrentThread(), name);
 }
 
 static _CFThreadRef __initialPthread = INVALID_HANDLE_VALUE;
