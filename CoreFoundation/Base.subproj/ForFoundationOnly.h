@@ -56,10 +56,6 @@ CF_IMPLICIT_BRIDGING_DISABLED
 #include <mach/mach_time.h>
 #endif
 
-#if (INCLUDE_OBJC || TARGET_OS_MAC || TARGET_OS_WIN32) && !DEPLOYMENT_RUNTIME_SWIFT
-#include <objc/message.h>
-#endif
-
 /* These functions implement standard error handling for reallocation. Their parameters match their unsafe variants (realloc/CFAllocatorReallocate). They differ from reallocf as they provide a chance for you to clean up a buffers contents (in addition to freeing the buffer, etc.)
  
    The optional reallocationFailureHandler is called only when the reallocation fails (with the original buffer passed in, so you can clean up the buffer/throw/abort/etc.
