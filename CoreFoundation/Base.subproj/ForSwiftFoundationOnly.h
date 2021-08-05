@@ -93,7 +93,9 @@ CF_PRIVATE Boolean __CFAllocatorRespectsHintZeroWhenAllocating(CFAllocatorRef _N
 static CFOptionFlags _CFAllocatorHintZeroWhenAllocating = 1;
 
 CF_PRIVATE Boolean _CFCalendarGetNextWeekend(CFCalendarRef calendar, _CFCalendarWeekendRange *range);
+#if __BLOCKS__
 CF_CROSS_PLATFORM_EXPORT void _CFCalendarEnumerateDates(CFCalendarRef calendar, CFDateRef start, CFDateComponentsRef matchingComponents, CFOptionFlags opts, void (^block)(CFDateRef _Nullable, Boolean, Boolean*));
+#endif
 CF_EXPORT void CFCalendarSetGregorianStartDate(CFCalendarRef calendar, CFDateRef _Nullable date);
 CF_EXPORT _Nullable CFDateRef CFCalendarCopyGregorianStartDate(CFCalendarRef calendar);
 
@@ -142,7 +144,11 @@ struct _NSDictionaryBridge {
     CFIndex (*countForObject)(CFTypeRef dictionary, CFTypeRef value);
     void (*getObjects)(CFTypeRef dictionary, CFTypeRef _Nullable *_Nullable valuebuf, CFTypeRef _Nullable *_Nullable keybuf);
     void (*__apply)(CFTypeRef dictionary, void (*applier)(CFTypeRef key, CFTypeRef value, void *context), void *context);
+#if __BLOCKS__
     void (*enumerateKeysAndObjectsWithOptions)(CFTypeRef dictionary, CFIndex options, void (^block)(const void *key, const void *value, Boolean *stop));
+#else
+    void *enumerateKeysAndObjectsWithOptions;
+#endif
     _Nonnull CFTypeRef (*_Nonnull copy)(CFTypeRef obj);
 };
 
@@ -409,7 +415,9 @@ CF_EXPORT _CFThreadRef _CFMainPThread;
 
 CF_EXPORT CFHashCode __CFHashDouble(double d);
 
+#if __BLOCKS__
 CF_CROSS_PLATFORM_EXPORT void CFSortIndexes(CFIndex *indexBuffer, CFIndex count, CFOptionFlags opts, CFComparisonResult (^cmp)(CFIndex, CFIndex));
+#endif
 
 CF_EXPORT CFTypeRef _Nullable _CFThreadSpecificGet(_CFThreadSpecificKey key);
 CF_EXPORT void _CFThreadSpecificSet(_CFThreadSpecificKey key, CFTypeRef _Nullable value);
@@ -494,6 +502,7 @@ static inline _Bool _resizeConditionalAllocationBuffer(_ConditionalAllocationBuf
     return true;
 }
 
+#if __BLOCKS__
 static inline _Bool _withStackOrHeapBuffer(size_t amount, void (__attribute__((noescape)) ^ _Nonnull applier)(_ConditionalAllocationBuffer *_Nonnull)) {
     _ConditionalAllocationBuffer buffer;
 #if TARGET_OS_MAC
@@ -516,6 +525,7 @@ static inline _Bool _withStackOrHeapBufferWithResultInArguments(size_t amount, v
         applier(buffer->memory, buffer->capacity, buffer->onStack);
     });
 }
+#endif
 
 #pragma mark - Character Set
 

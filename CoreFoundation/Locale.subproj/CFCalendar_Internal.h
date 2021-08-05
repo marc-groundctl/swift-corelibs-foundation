@@ -109,7 +109,9 @@ CF_PRIVATE _Nullable CFDateRef _CFCalendarCreateStartDateForTimeRangeOfUnitForDa
 CF_PRIVATE _Nullable CFDateIntervalRef _CFCalendarCreateDateInterval(CFAllocatorRef allocator, CFCalendarRef calendar, CFCalendarUnit unit, CFDateRef date);
 CF_PRIVATE _Nullable CFDateRef _CFCalendarCreateDateByAddingValueOfUnitToDate(CFCalendarRef calendar, CFIndex val, CFCalendarUnit unit, CFDateRef date);
     
+#if __BLOCKS__
 CF_CROSS_PLATFORM_EXPORT void _CFCalendarEnumerateDates(CFCalendarRef calendar, CFDateRef start, CFDateComponentsRef matchingComponents, CFOptionFlags opts, void (^block)(CFDateRef _Nullable, Boolean, Boolean*));
+#endif
 
 CF_EXPORT void CFCalendarSetGregorianStartDate(CFCalendarRef calendar, CFDateRef _Nullable date);
 CF_EXPORT _Nullable CFDateRef CFCalendarCopyGregorianStartDate(CFCalendarRef calendar);
