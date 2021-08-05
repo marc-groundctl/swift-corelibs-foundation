@@ -14,6 +14,10 @@
 #include <CoreFoundation/CFDictionary.h>
 #include <stddef.h>
 
+#ifdef __cplusplus
+#include <atomic>
+#endif
+
 CF_EXTERN_C_BEGIN
 
 #if (TARGET_OS_MAC && !TARGET_OS_IPHONE && !__x86_64h__)
@@ -182,6 +186,10 @@ CF_EXPORT void _CFRuntimeUnregisterClassWithTypeID(CFTypeID typeID);
 	 * valid weak refs to such in other threads.
 	 */
 
+#ifdef __cplusplus
+#define _Atomic(X) std::atomic<X>
+#endif
+
 /* All CF "instances" start with this structure.  Never refer to
  * these fields directly -- they are for CF's use and may be added
  * to or removed or change format without warning.  Binary
@@ -217,6 +225,10 @@ typedef struct __CFRuntimeBase {
 #define INIT_CFRUNTIME_BASE(...) {0, 0x00000080UL}
 #endif
 
+#endif
+
+#ifdef __cplusplus
+#undef _Atomic
 #endif
 
 CF_EXPORT CFTypeRef _CFRuntimeCreateInstance(CFAllocatorRef allocator, CFTypeID typeID, CFIndex extraBytes, unsigned char *category);
