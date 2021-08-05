@@ -249,10 +249,10 @@
 #error unknown architecture
 #endif
 
-#if __LITTLE_ENDIAN__
+#if __LITTLE_ENDIAN__ || (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__)
 #define TARGET_RT_LITTLE_ENDIAN 1
 #define TARGET_RT_BIG_ENDIAN    0
-#elif __BIG_ENDIAN__
+#elif __BIG_ENDIAN__ || (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__==__ORDER_BIG_ENDIAN__)
 #define TARGET_RT_LITTLE_ENDIAN 0
 #define TARGET_RT_BIG_ENDIAN    1
 #else
