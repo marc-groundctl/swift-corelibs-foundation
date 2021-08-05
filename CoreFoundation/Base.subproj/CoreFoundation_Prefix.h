@@ -22,8 +22,10 @@
 
 #if TARGET_OS_WASI
 #define __HAS_DISPATCH__ 0
-#else
+#elif CF_BUILDING_CF
 #define __HAS_DISPATCH__ 1
+#else
+#define __HAS_DISPATCH__ 0
 #endif
 
 #include <CoreFoundation/CFBase.h>
