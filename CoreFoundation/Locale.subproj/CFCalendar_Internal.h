@@ -26,6 +26,7 @@ typedef void *UCalendar;
 #endif
 
 CF_ASSUME_NONNULL_BEGIN
+CF_EXTERN_C_BEGIN
 
 /*
 typedef void (^CFCalendarEnumerateBlock)(CFDateRef date, bool exactMatch, bool *stop);
@@ -113,6 +114,7 @@ CF_CROSS_PLATFORM_EXPORT void _CFCalendarEnumerateDates(CFCalendarRef calendar, 
 CF_EXPORT void CFCalendarSetGregorianStartDate(CFCalendarRef calendar, CFDateRef _Nullable date);
 CF_EXPORT _Nullable CFDateRef CFCalendarCopyGregorianStartDate(CFCalendarRef calendar);
 
+CF_EXTERN_C_END
 CF_ASSUME_NONNULL_END
 
 #endif // __COREFOUNDATION_CFCALENDAR_INTERNAL__
