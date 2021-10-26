@@ -1022,28 +1022,28 @@ CF_PRIVATE CFErrorRef _CFBundleCreateErrorDebug(CFAllocatorRef allocator, CFBund
         CFStringRef name = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(bundle, kCFBundleNameKey);
         name = name ? (CFStringRef)CFRetain(name) : _CFBundleCopyLastPathComponent(bundle);
         if (CFBundleExecutableNotFoundError == code) {
-            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr4"), CFSTR("Error"), bdl, CFSTR("The bundle \\U201c%@\\U201d couldn\\U2019t be loaded because its executable couldn\\U2019t be located."), "NSFileNoSuchFileError");
-            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr4-C"), CFSTR("Error"), bdl, CFSTR("The bundle\\U2019s executable couldn\\U2019t be located."), "NSFileNoSuchFileError");
+            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr4"), CFSTR("Error"), bdl, CFSTR("The bundle \u201c%@\u201d couldn\u2019t be loaded because its executable couldn\u2019t be located."), "NSFileNoSuchFileError");
+            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr4-C"), CFSTR("Error"), bdl, CFSTR("The bundle\u2019s executable couldn\u2019t be located."), "NSFileNoSuchFileError");
             suggestion = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr4-R"), CFSTR("Error"), bdl, CFSTR("Try reinstalling the bundle."), "NSFileNoSuchFileError");
         } else if (CFBundleExecutableNotLoadableError == code) {
-            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3584"), CFSTR("Error"), bdl, CFSTR("The bundle \\U201c%@\\U201d couldn\\U2019t be loaded because its executable isn\\U2019t loadable."), "NSExecutableNotLoadableError");
-            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3584-C"), CFSTR("Error"), bdl, CFSTR("The bundle\\U2019s executable isn\\U2019t loadable."), "NSExecutableNotLoadableError");
+            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3584"), CFSTR("Error"), bdl, CFSTR("The bundle \u201c%@\u201d couldn\u2019t be loaded because its executable isn\u2019t loadable."), "NSExecutableNotLoadableError");
+            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3584-C"), CFSTR("Error"), bdl, CFSTR("The bundle\u2019s executable isn\u2019t loadable."), "NSExecutableNotLoadableError");
             suggestion = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3584-R"), CFSTR("Error"), bdl, CFSTR("Try reinstalling the bundle."), "NSExecutableNotLoadableError");
         } else if (CFBundleExecutableArchitectureMismatchError == code) {
-            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3585"), CFSTR("Error"), bdl, CFSTR("The bundle \\U201c%@\\U201d couldn\\U2019t be loaded because it doesn\\U2019t contain a version for the current architecture."), "NSExecutableArchitectureMismatchError");
-            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3585-C"), CFSTR("Error"), bdl, CFSTR("The bundle doesn\\U2019t contain a version for the current architecture."), "NSExecutableArchitectureMismatchError");
+            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3585"), CFSTR("Error"), bdl, CFSTR("The bundle \u201c%@\u201d couldn\u2019t be loaded because it doesn\u2019t contain a version for the current architecture."), "NSExecutableArchitectureMismatchError");
+            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3585-C"), CFSTR("Error"), bdl, CFSTR("The bundle doesn\u2019t contain a version for the current architecture."), "NSExecutableArchitectureMismatchError");
             suggestion = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3585-R"), CFSTR("Error"), bdl, CFSTR("Try installing a universal version of the bundle."), "NSExecutableArchitectureMismatchError");
         } else if (CFBundleExecutableRuntimeMismatchError == code) {
-            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3586"), CFSTR("Error"), bdl, CFSTR("The bundle \\U201c%@\\U201d couldn\\U2019t be loaded because it isn\\U2019t compatible with the current application."), "NSExecutableRuntimeMismatchError");
-            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3586-C"), CFSTR("Error"), bdl, CFSTR("The bundle isn\\U2019t compatible with this application."), "NSExecutableRuntimeMismatchError");
+            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3586"), CFSTR("Error"), bdl, CFSTR("The bundle \u201c%@\u201d couldn\u2019t be loaded because it isn\u2019t compatible with the current application."), "NSExecutableRuntimeMismatchError");
+            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3586-C"), CFSTR("Error"), bdl, CFSTR("The bundle isn\u2019t compatible with this application."), "NSExecutableRuntimeMismatchError");
             suggestion = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3586-R"), CFSTR("Error"), bdl, CFSTR("Try installing a newer version of the bundle."), "NSExecutableRuntimeMismatchError");
         } else if (CFBundleExecutableLoadError == code) {
-            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3587"), CFSTR("Error"), bdl, CFSTR("The bundle \\U201c%@\\U201d couldn\\U2019t be loaded because it is damaged or missing necessary resources."), "NSExecutableLoadError");
+            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3587"), CFSTR("Error"), bdl, CFSTR("The bundle \u201c%@\u201d couldn\u2019t be loaded because it is damaged or missing necessary resources."), "NSExecutableLoadError");
             reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3587-C"), CFSTR("Error"), bdl, CFSTR("The bundle is damaged or missing necessary resources."), "NSExecutableLoadError");
             suggestion = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3587-R"), CFSTR("Error"), bdl, CFSTR("Try reinstalling the bundle."), "NSExecutableLoadError");
         } else if (CFBundleExecutableLinkError == code) {
-            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3588"), CFSTR("Error"), bdl, CFSTR("The bundle \\U201c%@\\U201d couldn\\U2019t be loaded."), "NSExecutableLinkError");
-            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3588-C"), CFSTR("Error"), bdl, CFSTR("The bundle couldn\\U2019t be loaded."), "NSExecutableLinkError");
+            descFormat = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3588"), CFSTR("Error"), bdl, CFSTR("The bundle \u201c%@\u201d couldn\u2019t be loaded."), "NSExecutableLinkError");
+            reason = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3588-C"), CFSTR("Error"), bdl, CFSTR("The bundle couldn\u2019t be loaded."), "NSExecutableLinkError");
             suggestion = CFCopyLocalizedStringWithDefaultValue(CFSTR("BundleErr3588-R"), CFSTR("Error"), bdl, CFSTR("Try reinstalling the bundle."), "NSExecutableLinkError");
         }
         if (descFormat) {
