@@ -9,11 +9,12 @@
 
 #if os(macOS) || os(iOS) || os(watchOS) || os(tvOS)
 import SwiftFoundation
+import CFXMLInterface
 #else
 import Foundation
+@_implementationOnly import CFXMLInterface
 #endif
 @_implementationOnly import CoreFoundation
-@_implementationOnly import CFXMLInterface
 
 extension XMLParser {
     public enum ExternalEntityResolvingPolicy : UInt {
@@ -661,7 +662,7 @@ open class XMLParser : NSObject {
  */
 
 // The parser's delegate is informed of events through the methods in the NSXMLParserDelegateEventAdditions category.
-public protocol XMLParserDelegate: class {
+public protocol XMLParserDelegate: AnyObject {
     
     // Document handling methods
     func parserDidStartDocument(_ parser: XMLParser)

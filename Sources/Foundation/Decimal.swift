@@ -731,7 +731,7 @@ extension Decimal {
     public var ulp: Decimal {
         if !self.isFinite { return Decimal.nan }
         return Decimal(
-            _exponent: _exponent, _length: 8, _isNegative: 0, _isCompact: 1,
+            _exponent: _exponent, _length: 1, _isNegative: 0, _isCompact: 1,
             _reserved: 0, _mantissa: (0x0001, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000))
     }
 
@@ -2295,7 +2295,7 @@ extension Scanner {
                     repeat {
                         buf.advance()
                     } while decimalValue(buf.currentCharacter) != nil
-                    return Decimal.nan
+                    return nil
                 }
                 result._exponent += 1
             }
@@ -2315,7 +2315,7 @@ extension Scanner {
                         repeat {
                             buf.advance()
                         } while decimalValue(buf.currentCharacter) != nil
-                        return Decimal.nan
+                        return nil
                     }
                     result._exponent -= 1
                 }
@@ -2339,7 +2339,7 @@ extension Scanner {
             while let numeral = decimalValue(buf.currentCharacter) {
                 exponent = 10 * exponent + Int32(numeral)
                 guard exponent <= 2*Int32(Int8.max) else {
-                    return Decimal.nan
+                    return nil
                 }
 
                 buf.advance()
@@ -2350,7 +2350,7 @@ extension Scanner {
             }
             exponent += result._exponent
             guard exponent >= Int32(Int8.min) && exponent <= Int32(Int8.max) else {
-                return Decimal.nan
+                return nil
             }
             result._exponent = exponent
         }

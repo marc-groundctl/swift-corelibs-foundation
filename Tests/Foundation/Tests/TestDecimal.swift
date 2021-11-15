@@ -271,7 +271,7 @@ class TestDecimal: XCTestCase {
 
         let ulp = explicit.ulp
         XCTAssertEqual(0x7f, ulp.exponent)
-        XCTAssertEqual(8, ulp._length)
+        XCTAssertEqual(1, ulp._length)
         XCTAssertEqual(0, ulp._isNegative)
         XCTAssertEqual(1, ulp._isCompact)
         XCTAssertEqual(0, ulp._reserved)
@@ -749,7 +749,7 @@ class TestDecimal: XCTestCase {
         }
     }
 
-    func test_ScanDecimal() {
+    func test_ScanDecimal() throws {
         let testCases = [
             // expected, value
             ( 123.456e78, "123.456e78" ),
@@ -764,7 +764,7 @@ class TestDecimal: XCTestCase {
         ]
         for testCase in testCases {
             let (expected, string) = testCase
-            let decimal = Decimal(string:string)!
+            let decimal = try XCTUnwrap(Decimal(string:string))
             let aboutOne = Decimal(expected) / decimal
             let approximatelyRight = aboutOne >= Decimal(0.99999) && aboutOne <= Decimal(1.00001)
             XCTAssertTrue(approximatelyRight, "\(expected) ~= \(decimal) : \(aboutOne) \(aboutOne >= Decimal(0.99999)) \(aboutOne <= Decimal(1.00001))" )
@@ -779,6 +779,33 @@ class TestDecimal: XCTestCase {
             return
         }
         XCTAssertEqual(answer,num,"\(ones) / 9 = \(answer) \(num)")
+
+        // Exponent overflow, returns nil
+        XCTAssertNil(Decimal(string: "1e200"))
+        XCTAssertNil(Decimal(string: "1e-200"))
+        XCTAssertNil(Decimal(string: "1e300"))
+        XCTAssertNil(Decimal(string: "1" + String(repeating: "0", count: 170)))
+        XCTAssertNil(Decimal(string: "0." + String(repeating: "0", count: 170) + "1"))
+        XCTAssertNil(Decimal(string: "0e200"))
+
+        // Parsing zero in different forms
+        let zero1 = try XCTUnwrap(Decimal(string: "000.000e123"))
+        XCTAssertTrue(zero1.isZero)
+        XCTAssertEqual(zero1._isNegative, 0)
+        XCTAssertEqual(zero1._length, 0)
+        XCTAssertEqual(zero1.description, "0")
+
+        let zero2 = try XCTUnwrap(Decimal(string: "+000.000e-123"))
+        XCTAssertTrue(zero2.isZero)
+        XCTAssertEqual(zero2._isNegative, 0)
+        XCTAssertEqual(zero2._length, 0)
+        XCTAssertEqual(zero2.description, "0")
+
+        let zero3 = try XCTUnwrap(Decimal(string: "-0.0e1"))
+        XCTAssertTrue(zero3.isZero)
+        XCTAssertEqual(zero3._isNegative, 0)
+        XCTAssertEqual(zero3._length, 0)
+        XCTAssertEqual(zero3.description, "0")
     }
 
     func test_SimpleMultiplication() {
@@ -823,6 +850,11 @@ class TestDecimal: XCTestCase {
         XCTAssertTrue(number.boolValue, "Should have received true")
 
         XCTAssertEqual(100,number.objCType.pointee, "ObjC type for NSDecimalNumber is 'd'")
+    }
+    
+    func test_ULP() {
+        let x = 0.1 as Decimal
+        XCTAssertFalse(x.ulp > x)
     }
 
     func test_ZeroPower() {
@@ -1430,6 +1462,7 @@ class TestDecimal: XCTestCase {
             ("test_ScanDecimal", test_ScanDecimal),
             ("test_SimpleMultiplication", test_SimpleMultiplication),
             ("test_SmallerNumbers", test_SmallerNumbers),
+            ("test_ULP", test_ULP),
             ("test_ZeroPower", test_ZeroPower),
             ("test_parseDouble", test_parseDouble),
             ("test_doubleValue", test_doubleValue),
