@@ -388,7 +388,7 @@ open class FileManager : NSObject {
                     }
                     #if os(macOS) || os(iOS)
                         let modeT = number.uint16Value
-                    #elseif os(Linux) || os(Android) || os(Windows)
+                    #elseif os(Linux) || os(Android) || os(Windows) || os(OpenBSD)
                         let modeT = number.uint32Value
                     #endif
 #if os(Windows)
@@ -431,7 +431,7 @@ open class FileManager : NSObject {
 
                     let hiddenAttrs = isHidden
                         ? attrs | DWORD(FILE_ATTRIBUTE_HIDDEN)
-                        : attrs & DWORD(bitPattern: ~FILE_ATTRIBUTE_HIDDEN)
+                        : attrs & ~DWORD(FILE_ATTRIBUTE_HIDDEN)
                     guard SetFileAttributesW(fsRep, hiddenAttrs) else {
                       throw _NSErrorWithWindowsError(GetLastError(), reading: false, paths: [path])
                     }
@@ -450,7 +450,7 @@ open class FileManager : NSObject {
                     throw NSError(domain: NSCocoaErrorDomain, code: CocoaError.fileWriteUnknown.rawValue)
                     
                 default:
-                    fatalError("This attribute is unknown or cannot be set: \(attribute)")
+                    break
                 }
             }
 
@@ -538,6 +538,9 @@ open class FileManager : NSObject {
 #if os(Linux)
         let (s, creationDate) = try _statxFile(atPath: path)
         result[.creationDate] = creationDate
+#elseif os(Windows)
+        let (s, ino) = try _statxFile(atPath: path)
+        result[.creationDate] = s.creationDate
 #else
         let s = try _lstatFile(atPath: path)
         result[.creationDate] = s.creationDate
@@ -553,7 +556,11 @@ open class FileManager : NSObject {
         result[.posixPermissions] = NSNumber(value: _filePermissionsMask(mode: UInt32(s.st_mode)))
         result[.referenceCount] = NSNumber(value: UInt64(s.st_nlink))
         result[.systemNumber] = NSNumber(value: UInt64(s.st_dev))
+#if os(Windows)
+        result[.systemFileNumber] = NSNumber(value: UInt64(ino))
+#else
         result[.systemFileNumber] = NSNumber(value: UInt64(s.st_ino))
+#endif
 
 #if os(Windows)
         result[.deviceIdentifier] = NSNumber(value: UInt64(s.st_rdev))

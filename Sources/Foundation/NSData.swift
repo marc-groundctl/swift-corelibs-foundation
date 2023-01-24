@@ -8,7 +8,9 @@
 //
 
 @_implementationOnly import CoreFoundation
+#if !os(WASI)
 import Dispatch
+#endif
 
 extension NSData {
     public struct ReadingOptions : OptionSet {
@@ -75,7 +77,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
     private var _deallocHandler: _NSDataDeallocator? = _NSDataDeallocator() // for Swift
     private var _bytes: UnsafeMutablePointer<UInt8>? = nil
 
-    internal var _cfObject: CFType {
+    internal final var _cfObject: CFType {
         if type(of: self) === NSData.self || type(of: self) === NSMutableData.self {
             return unsafeBitCast(self, to: CFType.self)
         } else {
@@ -149,6 +151,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
         _init(bytes: bytes, length: length, copy: false, deallocator: deallocator)
     }
 
+#if !os(WASI)
     /// Initializes a data object with the contents of the file at a given path.
     public init(contentsOfFile path: String, options readOptionsMask: ReadingOptions = []) throws {
         super.init()
@@ -171,6 +174,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
             return nil
         }
     }
+#endif
 
     /// Initializes a data object with the contents of another data object.
     public init(data: Data) {
@@ -180,6 +184,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
         }
     }
 
+#if !os(WASI)
     /// Initializes a data object with the data from the location specified by a given URL.
     public init(contentsOf url: URL, options readOptionsMask: ReadingOptions = []) throws {
         super.init()
@@ -212,6 +217,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
             return try _NSNonfileURLContentLoader.current.contentsOf(url: url)
         }
     }
+#endif
 
     /// Initializes a data object with the given Base64 encoded string.
     public init?(base64Encoded base64String: String, options: Base64DecodingOptions = []) {
@@ -291,6 +297,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
             return isEqual(to: data._swiftObject)
         }
 
+#if !os(WASI)
         if let data = value as? DispatchData {
             if data.count != length {
                 return false
@@ -300,6 +307,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
                 return memcmp(bytes1, bytes2, length) == 0
             }
         }
+#endif
 
         return false
     }
@@ -425,6 +433,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
         }
     }
 
+#if !os(WASI)
     internal static func readBytesFromFileWithExtendedAttributes(_ path: String, options: ReadingOptions) throws -> NSDataReadResult {
         guard let handle = FileHandle(path: path, flags: O_RDONLY, createMode: 0) else {
             throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno), userInfo: nil)
@@ -528,6 +537,7 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
         }
         try write(toFile: url.path, options: writeOptionsMask)
     }
+#endif
 
     // MARK: - Bytes
     /// Copies a number of bytes from the start of the data object into a given buffer.
@@ -900,12 +910,14 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
             // anyway.
             buffer.baseAddress!.advanced(by: outputIndex).copyMemory(from: &outputBytes, byteCount: 4)
             outputIndex += 4
+            bytesLeft = dataBuffer.count - inputIndex
+            
             if lineLength != 0 {
                 // Add required EOL markers.
                 currentLineCount += 4
                 assert(currentLineCount <= lineLength)
 
-                if currentLineCount == lineLength {
+                if currentLineCount == lineLength && bytesLeft > 0 {
                     buffer[outputIndex] = separatorByte1
                     outputIndex += 1
 
@@ -916,7 +928,6 @@ open class NSData : NSObject, NSCopying, NSMutableCopying, NSSecureCoding {
                     currentLineCount = 0
                 }
             }
-            bytesLeft = dataBuffer.count - inputIndex
         }
 
         // Return the number of ASCII bytes written to the buffer
@@ -946,7 +957,7 @@ extension CFData : _NSBridgeable, _SwiftBridgeable {
 
 // MARK: -
 open class NSMutableData : NSData {
-    internal var _cfMutableObject: CFMutableData { return unsafeBitCast(self, to: CFMutableData.self) }
+    internal final var _cfMutableObject: CFMutableData { return unsafeBitCast(self, to: CFMutableData.self) }
 
     public override init() {
         super.init(bytes: nil, length: 0)
@@ -993,6 +1004,7 @@ open class NSMutableData : NSData {
         super.init(data: data)
     }
 
+#if !os(WASI)
     public override init?(contentsOfFile path: String) {
         super.init(contentsOfFile: path)
     }
@@ -1008,6 +1020,7 @@ open class NSMutableData : NSData {
     public override init(contentsOf url: URL, options: NSData.ReadingOptions = []) throws {
         try super.init(contentsOf: url, options: options)
     }
+#endif
 
     public override init?(base64Encoded base64Data: Data, options: NSData.Base64DecodingOptions = []) {
         super.init(base64Encoded: base64Data, options: options)

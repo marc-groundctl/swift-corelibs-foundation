@@ -135,13 +135,13 @@ open class Thread : NSObject {
         var ti = end_at - start_at
         let end_ut = start_ut + ti
         while (0.0 < ti) {
-            var __ts__ = timespec(tv_sec: Int.max, tv_nsec: 0)
+            var __ts__ = timespec(tv_sec: time_t.max, tv_nsec: 0)
             if ti < Double(Int.max) {
                 var integ = 0.0
                 let frac: Double = withUnsafeMutablePointer(to: &integ) { integp in
                     return modf(ti, integp)
                 }
-                __ts__.tv_sec = Int(integ)
+                __ts__.tv_sec = time_t(integ)
                 __ts__.tv_nsec = Int(frac * 1000000000.0)
             }
             let _ = withUnsafePointer(to: &__ts__) { ts in
@@ -170,13 +170,13 @@ open class Thread : NSObject {
         let start_ut = CFGetSystemUptime()
         let end_ut = start_ut + ti
         while 0.0 < ti {
-            var __ts__ = timespec(tv_sec: Int.max, tv_nsec: 0)
+            var __ts__ = timespec(tv_sec: time_t.max, tv_nsec: 0)
             if ti < Double(Int.max) {
                 var integ = 0.0
                 let frac: Double = withUnsafeMutablePointer(to: &integ) { integp in
                     return modf(ti, integp)
                 }
-                __ts__.tv_sec = Int(integ)
+                __ts__.tv_sec = time_t(integ)
                 __ts__.tv_nsec = Int(frac * 1000000000.0)
             }
             let _ = withUnsafePointer(to: &__ts__) { ts in
@@ -207,11 +207,11 @@ open class Thread : NSObject {
 
     private let _attrStorage = NonexportedAttrStorage()
 
-    internal var _attr: _CFThreadAttributes {
+    internal final var _attr: _CFThreadAttributes {
         get { _attrStorage.value }
         set { _attrStorage.value = newValue }
     }
-#elseif CYGWIN
+#elseif CYGWIN || os(OpenBSD)
     internal var _attr : pthread_attr_t? = nil
 #else
     internal var _attr = pthread_attr_t()
@@ -251,7 +251,7 @@ open class Thread : NSObject {
             _status = .finished
             return
         }
-#if CYGWIN
+#if CYGWIN || os(OpenBSD)
         if let attr = self._attr {
             _thread = self.withRetainedReference {
               return _CFThreadCreate(attr, NSThreadStart, $0)
@@ -359,7 +359,7 @@ open class Thread : NSObject {
         let maxSupportedStackDepth = 128;
         let addrs = UnsafeMutablePointer<UnsafeMutableRawPointer?>.allocate(capacity: maxSupportedStackDepth)
         defer { addrs.deallocate() }
-#if os(Android)
+#if os(Android) || os(OpenBSD)
         let count = 0
 #elseif os(Windows)
         let count = RtlCaptureStackBackTrace(0, DWORD(maxSupportedStackDepth),
@@ -380,7 +380,7 @@ open class Thread : NSObject {
     }
 
     open class var callStackSymbols: [String] {
-#if os(Android)
+#if os(Android) || os(OpenBSD)
         return []
 #elseif os(Windows)
         let hProcess: HANDLE = GetCurrentProcess()
@@ -391,26 +391,31 @@ open class Thread : NSObject {
         return backtraceAddresses { (addresses, count) in
           var symbols: [String] = []
 
-          var buffer: UnsafeMutablePointer<Int8> =
-              UnsafeMutablePointer<Int8>
-                  .allocate(capacity: MemoryLayout<SYMBOL_INFO>.size + 128)
-          defer { buffer.deallocate() }
+          let addresses: UnsafeMutableBufferPointer<PVOID?> =
+              UnsafeMutableBufferPointer<PVOID?>(start: addresses, count: count)
+          withUnsafeTemporaryAllocation(byteCount: MemoryLayout<SYMBOL_INFO>.size + 127,
+                                        alignment: 8) { buffer in
+            let pSymbolInfo: UnsafeMutablePointer<SYMBOL_INFO> =
+                buffer.baseAddress!.assumingMemoryBound(to: SYMBOL_INFO.self)
 
-          buffer.withMemoryRebound(to: SYMBOL_INFO.self, capacity: 1) {
-            $0.pointee.SizeOfStruct = ULONG(MemoryLayout<SYMBOL_INFO>.size)
-            $0.pointee.MaxNameLen = 128
+            for address in addresses {
+              pSymbolInfo.pointee.SizeOfStruct =
+                    ULONG(MemoryLayout<SYMBOL_INFO>.size)
+              pSymbolInfo.pointee.MaxNameLen = 128
 
-            var address = addresses
-            for _ in 1...count {
               var dwDisplacement: DWORD64 = 0
-              if !SymFromAddr(hProcess, unsafeBitCast(address.pointee, to: DWORD64.self), &dwDisplacement, $0) {
-                symbols.append("\($0.pointee)")
+              if SymFromAddr(hProcess, DWORD64(UInt(bitPattern: address)),
+                             &dwDisplacement, &pSymbolInfo.pointee) {
+                symbols.append(String(unsafeUninitializedCapacity: Int(pSymbolInfo.pointee.NameLen) + 1) {
+                  strncpy($0.baseAddress, &pSymbolInfo.pointee.Name, $0.count)
+                  return $0.count
+                })
               } else {
-                symbols.append(String(cString: &$0.pointee.Name))
+                symbols.append("\(address)")
               }
-              address = address.successor()
             }
           }
+
           return symbols
         }
 #else

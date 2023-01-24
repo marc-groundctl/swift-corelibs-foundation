@@ -301,7 +301,7 @@ open class NSCalendar : NSObject, NSCopying, NSSecureCoding {
     
     // Methods to return component name strings localized to the calendar's locale
     
-    private func _symbols(_ key: CFString) -> [String] {
+    private final func _symbols(_ key: CFString) -> [String] {
         let dateFormatter = CFDateFormatterCreate(kCFAllocatorSystemDefault, locale?._cfObject, kCFDateFormatterNoStyle, kCFDateFormatterNoStyle)
         CFDateFormatterSetProperty(dateFormatter, kCFDateFormatterCalendarKey, _cfObject)
         let result = (CFDateFormatterCopyProperty(dateFormatter, key) as! NSArray)._swiftObject
@@ -310,7 +310,7 @@ open class NSCalendar : NSObject, NSCopying, NSSecureCoding {
         }
     }
     
-    private func _symbol(_ key: CFString) -> String {
+    private final func _symbol(_ key: CFString) -> String {
         let dateFormatter = CFDateFormatterCreate(kCFAllocatorSystemDefault, locale?._bridgeToObjectiveC()._cfObject, kCFDateFormatterNoStyle, kCFDateFormatterNoStyle)
         CFDateFormatterSetProperty(dateFormatter, kCFDateFormatterCalendarKey, self._cfObject)
         return (CFDateFormatterCopyProperty(dateFormatter, key) as! NSString)._swiftObject
@@ -1378,6 +1378,7 @@ internal class _NSCopyOnWriteCalendar: NSCalendar {
     }
 }
 
+#if !os(WASI)
 // This notification is posted through [NSNotificationCenter defaultCenter]
 // when the system day changes. Register with "nil" as the object of this
 // notification. If the computer/device is asleep when the day changed,
@@ -1391,6 +1392,7 @@ internal class _NSCopyOnWriteCalendar: NSCalendar {
 extension NSNotification.Name {
     public static let NSCalendarDayChanged = NSNotification.Name(rawValue: "NSCalendarDayChangedNotification")
 }
+#endif
 
 
 extension NSCalendar: _SwiftBridgeable {

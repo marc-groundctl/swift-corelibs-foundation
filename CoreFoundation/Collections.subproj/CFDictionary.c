@@ -20,6 +20,31 @@ const CFDictionaryKeyCallBacks kCFTypeDictionaryKeyCallBacks = {0, __CFTypeColle
 const CFDictionaryKeyCallBacks kCFCopyStringDictionaryKeyCallBacks = {0, __CFStringCollectionCopy, __CFTypeCollectionRelease, CFCopyDescription, CFEqual, CFHash};
 const CFDictionaryValueCallBacks kCFTypeDictionaryValueCallBacks = {0, __CFTypeCollectionRetain, __CFTypeCollectionRelease, CFCopyDescription, CFEqual};
 
+CF_PRIVATE CFDictionaryKeyCallBacks __CFDictionaryGetKeyCallbacks(CFSetRef hc) {
+    CFBasicHashCallbacks hashCallbacks = __CFBasicHashGetCallbacks(hc);
+    CFDictionaryKeyCallBacks keyCallbacks = {
+        .version = 0,
+        .retain = (CFSetRetainCallBack)hashCallbacks.retainKey,
+        .release = (CFSetReleaseCallBack)hashCallbacks.releaseKey,
+        .equal = (CFSetEqualCallBack)hashCallbacks.equateKeys,
+        .hash = (CFSetHashCallBack)hashCallbacks.hashKey,
+        .copyDescription = (CFSetCopyDescriptionCallBack)hashCallbacks.copyKeyDescription
+    };
+    return keyCallbacks;
+}
+
+CF_PRIVATE CFDictionaryValueCallBacks __CFDictionaryGetValueCallbacks(CFSetRef hc) {
+    CFBasicHashCallbacks hashCallbacks = __CFBasicHashGetCallbacks(hc);
+    CFDictionaryValueCallBacks valueCallbacks = {
+        .version = 0,
+        .retain = (CFSetRetainCallBack)hashCallbacks.retainValue,
+        .release = (CFSetReleaseCallBack)hashCallbacks.releaseValue,
+        .equal = (CFSetEqualCallBack)hashCallbacks.equateValues,
+        .copyDescription = (CFSetCopyDescriptionCallBack)hashCallbacks.copyValueDescription
+    };
+    return valueCallbacks;
+}
+
 static Boolean __CFDictionaryEqual(CFTypeRef cf1, CFTypeRef cf2) {
     return __CFBasicHashEqual((CFBasicHashRef)cf1, (CFBasicHashRef)cf2);
 }
@@ -276,7 +301,7 @@ void CFDictionaryApplyFunction(CFDictionaryRef hc, CFDictionaryApplierFunction a
 }
 
 CF_PRIVATE void CFDictionaryApply(CFDictionaryRef hc, void (^block)(const void *key, const void *value, Boolean *stop)) {
-    CF_SWIFT_FUNCDISPATCHV(_kCFRuntimeIDCFDictionary, void, (CFSwiftRef)hc, NSDictionary.enumerateKeysAndObjectsWithOptions, 0, block);
+    CF_SWIFT_FUNCDISPATCHV(CFDictionaryGetTypeID(), void, (CFSwiftRef)hc, NSDictionary.enumerateKeysAndObjectsWithOptions, 0, block);
     CF_OBJC_FUNCDISPATCHV(_kCFRuntimeIDCFDictionary, void, (NSDictionary *)hc, enumerateKeysAndObjectsWithOptions:0 usingBlock:(void (^ _Nonnull)(id _Nonnull, id _Nonnull, BOOL * _Nonnull))block);
     __CFGenericValidateType(hc, CFDictionaryGetTypeID());
     CFBasicHashApply((CFBasicHashRef)hc, ^(CFBasicHashBucket bkt) {

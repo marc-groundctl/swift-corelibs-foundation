@@ -1080,8 +1080,14 @@ class TestFileManager : XCTestCase {
         }
         XCTAssertNotEqual(0, volumes.count)
 #if os(Windows)
-        let url = URL(fileURLWithPath: String(NSTemporaryDirectory().prefix(3)))
-        XCTAssertTrue(volumes.contains(url))
+        guard let url: URL = FileManager.default.urls(for: .applicationSupportDirectory, in: .localDomainMask).first else {
+            XCTFail("unable to query a system directory")
+            return
+        }
+        let root: String = url.withUnsafeFileSystemRepresentation {
+            String(String(cString: $0!).prefix(3))
+        }
+        XCTAssertTrue(volumes.contains(URL(fileURLWithPath: root)))
 #else
         XCTAssertTrue(volumes.contains(URL(fileURLWithPath: "/")))
 #endif
@@ -1251,6 +1257,24 @@ class TestFileManager : XCTestCase {
         try? data.write(to: dataFile1)
         XCTAssertFalse(fm.contentsEqual(atPath: dataFile1.path, andPath: dataFile2.path))
         XCTAssertFalse(fm.contentsEqual(atPath: testDir1.path, andPath: testDir2.path))
+    }
+
+    func test_setInvalidFileAttributes() throws {
+        let path = "\(NSTemporaryDirectory())test_setInvalidFileAttributes\(NSUUID().uuidString)"
+        let FM = FileManager.default
+
+        try? FM.removeItem(atPath: path)
+        XCTAssertTrue(FM.createFile(atPath: path, contents: Data(), attributes: nil))
+
+        do {
+            try FM.setAttributes([
+                .size: NSNumber(value: Int16(16)),
+                .systemNumber: NSNumber(value: Int16(32)),
+                .systemFileNumber: NSNumber(value: Int16(48)),
+            ], ofItemAtPath: path)
+        } catch {
+            XCTFail("\(error)")
+        }
     }
 
     func test_copyItemsPermissions() throws {
@@ -2018,9 +2042,10 @@ VIDEOS=StopgapVideos
             ("test_displayNames", test_displayNames),
             ("test_getItemReplacementDirectory", test_getItemReplacementDirectory),
             ("test_contentsEqual", test_contentsEqual),
+            ("test_setInvalidFileAttributes", test_setInvalidFileAttributes),
             /* ⚠️  */ ("test_replacement", testExpectedToFail(test_replacement,
             /* ⚠️  */     "<https://bugs.swift.org/browse/SR-10819> Re-enable Foundation test TestFileManager.test_replacement")),
-            ("test_concurrentGetItemReplacementDirectory", test_concurrentGetItemReplacementDirectory),
+            /* ⚠️  */("test_concurrentGetItemReplacementDirectory", testExpectedToFail(test_concurrentGetItemReplacementDirectory, "Intermittent SEGFAULT: rdar://84519512")),
             ("test_NSTemporaryDirectory", test_NSTemporaryDirectory),
         ]
         

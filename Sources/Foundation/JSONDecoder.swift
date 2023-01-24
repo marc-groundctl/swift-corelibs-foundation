@@ -227,38 +227,50 @@ extension JSONDecoderImpl: Decoder {
     @usableFromInline func container<Key>(keyedBy _: Key.Type) throws ->
         KeyedDecodingContainer<Key> where Key: CodingKey
     {
-        guard case .object(let dictionary) = self.json else {
+        switch self.json {
+        case .object(let dictionary):
+            let container = KeyedContainer<Key>(
+                impl: self,
+                codingPath: codingPath,
+                dictionary: dictionary
+            )
+            return KeyedDecodingContainer(container)
+        case .null:
+            throw DecodingError.valueNotFound([String: JSONValue].self, DecodingError.Context(
+                codingPath: self.codingPath, 
+                debugDescription: "Cannot get keyed decoding container -- found null value instead"
+            ))
+        default:
             throw DecodingError.typeMismatch([String: JSONValue].self, DecodingError.Context(
                 codingPath: self.codingPath,
                 debugDescription: "Expected to decode \([String: JSONValue].self) but found \(self.json.debugDataTypeDescription) instead."
             ))
         }
-
-        let container = KeyedContainer<Key>(
-            impl: self,
-            codingPath: codingPath,
-            dictionary: dictionary
-        )
-        return KeyedDecodingContainer(container)
     }
 
     @usableFromInline func unkeyedContainer() throws -> UnkeyedDecodingContainer {
-        guard case .array(let array) = self.json else {
+        switch self.json {
+        case .array(let array):
+            return UnkeyedContainer(
+                impl: self,
+                codingPath: self.codingPath,
+                array: array
+            )
+        case .null:
+            throw DecodingError.valueNotFound([String: JSONValue].self, DecodingError.Context(
+                codingPath: self.codingPath, 
+                debugDescription: "Cannot get unkeyed decoding container -- found null value instead"
+            ))
+        default:
             throw DecodingError.typeMismatch([JSONValue].self, DecodingError.Context(
                 codingPath: self.codingPath,
                 debugDescription: "Expected to decode \([JSONValue].self) but found \(self.json.debugDataTypeDescription) instead."
             ))
         }
-
-        return UnkeyedContainer(
-            impl: self,
-            codingPath: self.codingPath,
-            array: array
-        )
     }
 
     @usableFromInline func singleValueContainer() throws -> SingleValueDecodingContainer {
-        SingleValueContainter(
+        SingleValueContainer(
             impl: self,
             codingPath: self.codingPath,
             json: self.json
@@ -293,18 +305,18 @@ extension JSONDecoderImpl: Decoder {
             return try Date(from: self)
 
         case .secondsSince1970:
-            let container = SingleValueContainter(impl: self, codingPath: self.codingPath, json: self.json)
+            let container = SingleValueContainer(impl: self, codingPath: self.codingPath, json: self.json)
             let double = try container.decode(Double.self)
             return Date(timeIntervalSince1970: double)
 
         case .millisecondsSince1970:
-            let container = SingleValueContainter(impl: self, codingPath: self.codingPath, json: self.json)
+            let container = SingleValueContainer(impl: self, codingPath: self.codingPath, json: self.json)
             let double = try container.decode(Double.self)
             return Date(timeIntervalSince1970: double / 1000.0)
 
         case .iso8601:
             if #available(macOS 10.12, iOS 10.0, watchOS 3.0, tvOS 10.0, *) {
-                let container = SingleValueContainter(impl: self, codingPath: self.codingPath, json: self.json)
+                let container = SingleValueContainer(impl: self, codingPath: self.codingPath, json: self.json)
                 let string = try container.decode(String.self)
                 guard let date = _iso8601Formatter.date(from: string) else {
                     throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Expected date string to be ISO8601-formatted."))
@@ -316,7 +328,7 @@ extension JSONDecoderImpl: Decoder {
             }
 
         case .formatted(let formatter):
-            let container = SingleValueContainter(impl: self, codingPath: self.codingPath, json: self.json)
+            let container = SingleValueContainer(impl: self, codingPath: self.codingPath, json: self.json)
             let string = try container.decode(String.self)
             guard let date = formatter.date(from: string) else {
                 throw DecodingError.dataCorrupted(DecodingError.Context(codingPath: self.codingPath, debugDescription: "Date string does not match format expected by formatter."))
@@ -334,7 +346,7 @@ extension JSONDecoderImpl: Decoder {
             return try Data(from: self)
 
         case .base64:
-            let container = SingleValueContainter(impl: self, codingPath: self.codingPath, json: self.json)
+            let container = SingleValueContainer(impl: self, codingPath: self.codingPath, json: self.json)
             let string = try container.decode(String.self)
 
             guard let data = Data(base64Encoded: string) else {
@@ -349,7 +361,7 @@ extension JSONDecoderImpl: Decoder {
     }
 
     private func unwrapURL() throws -> URL {
-        let container = SingleValueContainter(impl: self, codingPath: self.codingPath, json: self.json)
+        let container = SingleValueContainer(impl: self, codingPath: self.codingPath, json: self.json)
         let string = try container.decode(String.self)
 
         guard let url = URL(string: string) else {
@@ -454,30 +466,30 @@ extension JSONDecoderImpl: Decoder {
                 return nsNumber.uint8Value as! T
             }
             if type == Int8.self, NSNumber(value: nsNumber.int8Value) == nsNumber {
-                return nsNumber.uint8Value as! T
+                return nsNumber.int8Value as! T
             }
             if type == UInt16.self, NSNumber(value: nsNumber.uint16Value) == nsNumber {
                 return nsNumber.uint16Value as! T
             }
             if type == Int16.self, NSNumber(value: nsNumber.int16Value) == nsNumber {
-                return nsNumber.uint16Value as! T
+                return nsNumber.int16Value as! T
             }
             if type == UInt32.self, NSNumber(value: nsNumber.uint32Value) == nsNumber {
                 return nsNumber.uint32Value as! T
             }
             if type == Int32.self, NSNumber(value: nsNumber.int32Value) == nsNumber {
-                return nsNumber.uint32Value as! T
+                return nsNumber.int32Value as! T
             }
             if type == UInt64.self, NSNumber(value: nsNumber.uint64Value) == nsNumber {
                 return nsNumber.uint64Value as! T
             }
             if type == Int64.self, NSNumber(value: nsNumber.int64Value) == nsNumber {
-                return nsNumber.uint64Value as! T
+                return nsNumber.int64Value as! T
             }
             if type == UInt.self, NSNumber(value: nsNumber.uintValue) == nsNumber {
                 return nsNumber.uintValue as! T
             }
-            if type == Int.self, NSNumber(value: nsNumber.uintValue) == nsNumber {
+            if type == Int.self, NSNumber(value: nsNumber.intValue) == nsNumber {
                 return nsNumber.intValue as! T
             }
         }
@@ -520,7 +532,7 @@ extension Decodable {
 }
 
 extension JSONDecoderImpl {
-    struct SingleValueContainter: SingleValueDecodingContainer {
+    struct SingleValueContainer: SingleValueDecodingContainer {
         let impl: JSONDecoderImpl
         let value: JSONValue
         let codingPath: [CodingKey]
@@ -750,15 +762,34 @@ extension JSONDecoderImpl {
         }
 
         func superDecoder() throws -> Decoder {
-            try decoderForKey(_JSONKey.super)
+            return decoderForKeyNoThrow(_JSONKey.super)
         }
 
         func superDecoder(forKey key: K) throws -> Decoder {
-            try decoderForKey(key)
+            return decoderForKeyNoThrow(key)
         }
 
         private func decoderForKey<LocalKey: CodingKey>(_ key: LocalKey) throws -> JSONDecoderImpl {
             let value = try getValue(forKey: key)
+            var newPath = self.codingPath
+            newPath.append(key)
+
+            return JSONDecoderImpl(
+                userInfo: self.impl.userInfo,
+                from: value,
+                codingPath: newPath,
+                options: self.impl.options
+            )
+        }
+
+        private func decoderForKeyNoThrow<LocalKey: CodingKey>(_ key: LocalKey) -> JSONDecoderImpl {
+            let value: JSONValue
+            do {
+                value = try getValue(forKey: key)
+            } catch {
+                // if there no value for this key then return a null value
+                value = .null
+            }
             var newPath = self.codingPath
             newPath.append(key)
 

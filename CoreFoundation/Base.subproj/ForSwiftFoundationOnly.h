@@ -29,13 +29,14 @@
 #include <CoreFoundation/CFURLPriv.h>
 #include <CoreFoundation/CFURLComponents.h>
 #include <CoreFoundation/CFRunArray.h>
+#include <CoreFoundation/CFDateComponents.h>
 
 #if TARGET_OS_WIN32
 #define NOMINMAX
 #define VC_EXTRALEAN
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#else
+#elif !TARGET_OS_WASI
 #include <fts.h>
 #endif
 #if __has_include(<unistd.h>)
@@ -90,7 +91,6 @@
 _CF_EXPORT_SCOPE_BEGIN
 
 CF_PRIVATE Boolean __CFAllocatorRespectsHintZeroWhenAllocating(CFAllocatorRef _Nullable allocator);
-static CFOptionFlags _CFAllocatorHintZeroWhenAllocating = 1;
 
 CF_PRIVATE Boolean _CFCalendarGetNextWeekend(CFCalendarRef calendar, _CFCalendarWeekendRange *range);
 #if __BLOCKS__
@@ -204,9 +204,11 @@ struct _NSMutableStringBridge {
     void (*_cfAppendCString)(CFTypeRef str, const char *chars, CFIndex appendLength);
 };
 
+#if !TARGET_OS_WASI
 struct _NSRunLoop {
     _Nonnull CFTypeRef (*_Nonnull _new)(CFRunLoopRef rl);
 };
+#endif
 
 struct _NSCharacterSetBridge {
     _Nullable CFCharacterSetRef (*_Nonnull _expandedCFCharacterSet)(CFTypeRef cset);
@@ -282,7 +284,9 @@ struct _CFSwiftBridge {
     struct _NSMutableSetBridge NSMutableSet;
     struct _NSStringBridge NSString;
     struct _NSMutableStringBridge NSMutableString;
+#if !TARGET_OS_WASI
     struct _NSRunLoop NSRunLoop;
+#endif
     struct _NSCharacterSetBridge NSCharacterSet;
     struct _NSMutableCharacterSetBridge NSMutableCharacterSet;
     struct _NSNumberBridge NSNumber;
@@ -381,7 +385,10 @@ CF_PRIVATE uint64_t __CFMemorySize(void);
 CF_PRIVATE CFIndex __CFActiveProcessorCount(void);
 CF_CROSS_PLATFORM_EXPORT CFStringRef CFCopyFullUserName(void);
 
+#if !TARGET_OS_WASI
 extern CFWriteStreamRef _CFWriteStreamCreateFromFileDescriptor(CFAllocatorRef alloc, int fd);
+#endif
+
 #if !__COREFOUNDATION_FORFOUNDATIONONLY__
 typedef const struct __CFKeyedArchiverUID * CFKeyedArchiverUIDRef;
 extern CFTypeID _CFKeyedArchiverUIDGetTypeID(void);
@@ -391,7 +398,10 @@ extern uint32_t _CFKeyedArchiverUIDGetValue(CFKeyedArchiverUIDRef uid);
 
 extern CFIndex __CFBinaryPlistWriteToStream(CFPropertyListRef plist, CFTypeRef stream);
 CF_CROSS_PLATFORM_EXPORT CFDataRef _CFPropertyListCreateXMLDataWithExtras(CFAllocatorRef allocator, CFPropertyListRef propertyList);
+
+#if !TARGET_OS_WASI
 extern CFWriteStreamRef _CFWriteStreamCreateFromFileDescriptor(CFAllocatorRef alloc, int fd);
+#endif
 
 CF_EXPORT char *_Nullable *_Nonnull _CFEnviron(void);
 
@@ -433,6 +443,7 @@ CF_EXPORT CFCharacterSetRef _CFCharacterSetCreateCopy(CFAllocatorRef alloc, CFCh
 CF_EXPORT CFMutableCharacterSetRef _CFCharacterSetCreateMutableCopy(CFAllocatorRef alloc, CFCharacterSetRef theSet);
 CF_CROSS_PLATFORM_EXPORT void _CFCharacterSetInitCopyingSet(CFAllocatorRef alloc, CFMutableCharacterSetRef cset, CFCharacterSetRef theSet, bool isMutable, bool validateSubclasses);
 
+#if !TARGET_OS_WASI
 CF_EXPORT _Nullable CFErrorRef CFReadStreamCopyError(CFReadStreamRef _Null_unspecified stream);
 
 CF_EXPORT _Nullable CFErrorRef CFWriteStreamCopyError(CFWriteStreamRef _Null_unspecified stream);
@@ -441,6 +452,7 @@ CF_CROSS_PLATFORM_EXPORT CFStringRef _Nullable _CFBundleCopyExecutablePath(CFBun
 CF_CROSS_PLATFORM_EXPORT Boolean _CFBundleSupportsFHSBundles(void);
 CF_CROSS_PLATFORM_EXPORT Boolean _CFBundleSupportsFreestandingBundles(void);
 CF_CROSS_PLATFORM_EXPORT CFStringRef _Nullable _CFBundleCopyLoadedImagePathForAddress(const void *p);
+#endif
 
 CF_CROSS_PLATFORM_EXPORT CFStringRef __CFTimeZoneCopyDataVersionString(void);
 
@@ -503,6 +515,18 @@ static inline _Bool _resizeConditionalAllocationBuffer(_ConditionalAllocationBuf
 }
 
 #if __BLOCKS__
+#if TARGET_OS_WASI
+static inline _Bool _withStackOrHeapBuffer(size_t amount, void (__attribute__((noescape)) ^ _Nonnull applier)(_ConditionalAllocationBuffer *_Nonnull)) {
+    _ConditionalAllocationBuffer buffer;
+    buffer.capacity = amount;
+    buffer.onStack = false;
+    buffer.memory = malloc(buffer.capacity);
+    if (buffer.memory == NULL) { return false; }
+    applier(&buffer);
+    free(buffer.memory);
+    return true;
+}
+#else
 static inline _Bool _withStackOrHeapBuffer(size_t amount, void (__attribute__((noescape)) ^ _Nonnull applier)(_ConditionalAllocationBuffer *_Nonnull)) {
     _ConditionalAllocationBuffer buffer;
 #if TARGET_OS_MAC
@@ -519,6 +543,7 @@ static inline _Bool _withStackOrHeapBuffer(size_t amount, void (__attribute__((n
     }
     return true;
 }
+#endif
 
 static inline _Bool _withStackOrHeapBufferWithResultInArguments(size_t amount, void (__attribute__((noescape)) ^ _Nonnull applier)(void *_Nonnull memory, size_t capacity, _Bool onStack)) {
     return _withStackOrHeapBuffer(amount, ^(_ConditionalAllocationBuffer *buffer) {
@@ -535,7 +560,7 @@ CF_CROSS_PLATFORM_EXPORT CFIndex __CFCharDigitValue(UniChar ch);
 
 #if TARGET_OS_WIN32
 CF_CROSS_PLATFORM_EXPORT int _CFOpenFileWithMode(const unsigned short *path, int opts, mode_t mode);
-#else
+#elif !TARGET_OS_WASI
 CF_CROSS_PLATFORM_EXPORT int _CFOpenFileWithMode(const char *path, int opts, mode_t mode);
 #endif
 CF_CROSS_PLATFORM_EXPORT void *_CFReallocf(void *ptr, size_t size);
