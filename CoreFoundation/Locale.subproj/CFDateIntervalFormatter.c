@@ -21,7 +21,7 @@
 
 #include <unicode/udateintervalformat.h>
 
-#if TARGET_OS_WASI
+#if !__HAS_DISPATCH__
 #define LOCK() do {} while (0)
 #define UNLOCK() do {} while (0)
 #else
@@ -56,7 +56,7 @@ struct __CFDateIntervalFormatter {
     CFDateIntervalFormatterStyle _dateStyle;
     CFDateIntervalFormatterStyle _timeStyle;
     _CFDateIntervalFormatterBoundaryStyle _boundaryStyle;
-#if !TARGET_OS_WASI
+#if __HAS_DISPATCH__
     dispatch_semaphore_t _lock;
 #endif
     bool _modified:1;
@@ -237,7 +237,7 @@ CFDateIntervalFormatterRef CFDateIntervalFormatterCreate(CFAllocatorRef allocato
     memory->_dateTemplate = CFRetain(CFSTR(""));
     memory->_formatter = NULL;
     memory->_boundaryStyle = kCFDateIntervalFormatterBoundaryStyleDefault;
-#if !TARGET_OS_WASI
+#if __HAS_DISPATCH__
     memory->_lock = dispatch_semaphore_create(1);
 #endif
     memory->_modified = false;
@@ -346,7 +346,7 @@ static void __CFDateIntervalFormatterDeallocate(CFTypeRef object) {
         udtitvfmt_close(formatter->_formatter);
     }
     
-#if !TARGET_OS_WASI
+#if __HAS_DISPATCH__
     dispatch_release(formatter->_lock);
 #endif
 }

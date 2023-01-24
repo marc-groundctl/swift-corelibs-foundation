@@ -55,7 +55,8 @@ typedef uint32_t mach_port_name_t;
 #endif
 #endif
 
-#if __HAS_DISPATCH__ && __has_include(<dispatch/private.h>)
+#if __HAS_DISPATCH__
+#if __has_include(<dispatch/private.h>)
 #include <dispatch/private.h>
 #else
 extern dispatch_queue_t _dispatch_runloop_root_queue_create_4CF(const char *_Nullable label, unsigned long flags);
@@ -65,6 +66,7 @@ extern mach_port_t _dispatch_runloop_root_queue_get_port_4CF(dispatch_queue_t qu
 #endif
 extern void _dispatch_source_set_runloop_timer_4CF(dispatch_source_t source, dispatch_time_t start, uint64_t interval, uint64_t leeway);
 extern bool _dispatch_runloop_root_queue_perform_4CF(dispatch_queue_t queue);
+#endif
 
 #if TARGET_OS_MAC
 typedef mach_port_t dispatch_runloop_handle_t;
@@ -95,8 +97,10 @@ extern mach_port_t _dispatch_get_main_queue_port_4CF(void);
 
 #elif TARGET_OS_WIN32 || TARGET_OS_CYGWIN
 #include <process.h>
+#if __HAS_DISPATCH__
 DISPATCH_EXPORT dispatch_runloop_handle_t _dispatch_get_main_queue_port_4CF(void);
 DISPATCH_EXPORT void _dispatch_main_queue_callback_4CF(void * _Null_unspecified);
+#endif
 
 #define MACH_PORT_NULL 0
 #define mach_port_name_t HANDLE

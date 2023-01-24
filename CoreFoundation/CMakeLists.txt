@@ -99,6 +99,10 @@ else()
   add_compile_definitions($<$<COMPILE_LANGUAGE:C>:DEPLOYMENT_RUNTIME_C>)
 endif()
 
+if(NOT HAS_LIBDISPATCH_API)
+	add_compile_definitions($<$<COMPILE_LANGUAGE:C>:NO_DISPATCH_API>)
+endif()
+
 # TODO(compnerd) ensure that the compiler supports the warning flag
 add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-shorten-64-to-32>)
 add_compile_options($<$<COMPILE_LANGUAGE:C>:-Wno-deprecated-declarations>)
@@ -388,7 +392,7 @@ target_link_libraries(CoreFoundation PRIVATE
   Threads::Threads
   ${CMAKE_DL_LIBS}
   BlocksRuntime
-  dispatch)
+)
 if(CMAKE_SYSTEM_NAME STREQUAL Android)
   target_link_libraries(CoreFoundation PRIVATE
     log)
@@ -504,15 +508,17 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL Windows AND NOT CMAKE_SYSTEM_NAME STREQUAL Dar
                         PRIVATE
                           m)
 endif()
-target_link_libraries(CoreFoundation
-                      PRIVATE
-                        dispatch)
-target_link_libraries(CFURLSessionInterface
-                      PRIVATE
-                        dispatch)
-target_link_libraries(CFXMLInterface
-                      PRIVATE
-                        dispatch)
+if(HAS_LIBDISPATCH_API)
+  target_link_libraries(CoreFoundation
+                        PRIVATE
+                          dispatch)
+  target_link_libraries(CFURLSessionInterface
+                        PRIVATE
+                          dispatch)
+  target_link_libraries(CFXMLInterface
+                        PRIVATE
+                          dispatch)
+endif()
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
   target_link_libraries(CoreFoundation
                         PRIVATE

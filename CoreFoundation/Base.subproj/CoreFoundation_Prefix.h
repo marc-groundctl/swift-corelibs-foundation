@@ -19,7 +19,9 @@
 
 #include <CoreFoundation/CFAvailability.h>
 
-#if TARGET_OS_WASI
+#if NO_DISPATCH_API
+#define __HAS_DISPATCH__ 0
+#elif TARGET_OS_WASI
 #define __HAS_DISPATCH__ 0
 #elif CF_BUILDING_CF
 #define __HAS_DISPATCH__ 1

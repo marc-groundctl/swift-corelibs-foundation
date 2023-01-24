@@ -1759,7 +1759,10 @@ static Boolean burstTrieMappedPageFind(StringPage *page, const UInt8 *key, uint3
                 success = true;
                 return success;
             } else {
-                memcpy(pfx+entry->pfxLen, entry->string, MIN(255-entry->pfxLen, length-entry->pfxLen));
+                uint32_t len = length;
+                if (len > 255)
+                    len = 255;
+                memcpy(pfx+entry->pfxLen, entry->string, len-entry->pfxLen);
                 cur += sizeof(*entry) + strlen - entry->pfxLen;
             }
         }        
@@ -2040,7 +2043,10 @@ static int nodeWeightCompare(const void *a, const void *b) {
 static int nodeStringCompare(const void *a, const void *b) {
     ListNodeRef nodeA = *(ListNodeRef *)a;
     ListNodeRef nodeB = *(ListNodeRef *)b;
-    int result = memcmp((char *)nodeA->string, (char *)nodeB->string, MIN(nodeA->length, nodeB->length));
+    uint16_t min_len = nodeA->length;
+    if (min_len > nodeB->length)
+        min_len = nodeB->length;
+    int result = memcmp((char *)nodeA->string, (char *)nodeB->string, min_len);
     if (result == 0) result = nodeA->length-nodeB->length;
     return result;
 }

@@ -1402,6 +1402,48 @@ void OSMemoryBarrier() {
 
 #if !__HAS_DISPATCH__
 
+#if _WIN32
+
+#include <assert.h>
+
+void _CF_dispatch_once(dispatch_once_t *predicate, void (^block)(void)) {
+	if (!predicate)
+		HALT_MSG("dispatch_once called with NULL predicate");
+
+	enum
+	{
+		uncalled = 0, // Explicitly specify this value since it's part of the ABI
+		calling,
+		called,
+	};
+
+	while (true)
+	{
+		static_assert(sizeof(dispatch_once_t) == sizeof(long), "dispatch_once_t must be a long");
+		long val = *predicate;
+		switch (val)
+		{
+		case uncalled:
+			if (!OSAtomicCompareAndSwapLong(uncalled, calling, predicate))
+				break;
+			block();
+			if (!OSAtomicCompareAndSwapLong(calling, called, predicate))
+				HALT_MSG("modification of dispatch_once_t during initialization");
+			WakeByAddressAll((void *)predicate);
+			return;
+		case calling:
+			WaitOnAddress(predicate, &val, sizeof(val), INFINITE);
+			break;
+		case called:
+			return;
+		default:
+			HALT_MSG("dispatch_once predicate has invalid value");
+		}
+	}
+}
+
+#else
+
 #include <semaphore.h>
 
 typedef struct _CF_sema_s {
@@ -1512,6 +1554,8 @@ void _CF_dispatch_once(dispatch_once_t *predicate, void (^block)(void)) {
     }
 #endif // TARGET_OS_WASI
 }
+
+#endif
 
 #endif
 

@@ -3364,7 +3364,9 @@ Boolean CFStringFindWithOptionsAndLocale(CFStringRef string, CFStringRef stringT
                                         if (delta == 1) {
                                             preventStr1FoldingUntil = currentCluster.location + currentCluster.length;
                                         } else {
-                                            preventStr1FoldingUntil = MAX(currentCluster.location - 1, 1);
+                                            preventStr1FoldingUntil = currentCluster.location - 1;
+                                            if (preventStr1FoldingUntil < 1)
+                                                preventStr1FoldingUntil = 1;
                                         }
                                     }
                                 }
@@ -6811,7 +6813,9 @@ CF_INLINE void _CFStringFormatReplacementDictionaryAppendRange(CFMutableDictiona
     CFDictionarySetValue(replacement, _kCFStringFormatMetadataReplacementRangeLocationKey, rangeLocationObject);
     CFRelease(rangeLocationObject);
     
-    CFIndex length = MAX(lengthAfter - lengthBefore, 0);
+    CFIndex length = lengthAfter - lengthBefore;
+    if (length < 0)
+        length = 0;
     CFNumberRef rangeLengthObject = CFNumberCreate(kCFAllocatorSystemDefault, kCFNumberCFIndexType, &length);
     CFDictionarySetValue(replacement, _kCFStringFormatMetadataReplacementRangeLengthKey, rangeLengthObject);
     CFRelease(rangeLengthObject);
