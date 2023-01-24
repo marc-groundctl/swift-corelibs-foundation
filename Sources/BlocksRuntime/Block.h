@@ -12,10 +12,19 @@
 #define _Block_H_
 
 #if !defined(BLOCK_EXPORT)
-#   if defined(__cplusplus)
-#       define BLOCK_EXPORT extern "C" 
+#   if defined(_WIN32)
+#       if defined(BlocksRuntime_EXPORTS)
+#           define BLOCK_LINKAGE __declspec(dllexport)
+#       else
+#           define BLOCK_LINKAGE __declspec(dllimport)
+#       endif
 #   else
-#       define BLOCK_EXPORT extern
+#       define BLOCK_LINKAGE
+#   endif
+#   if defined(__cplusplus)
+#       define BLOCK_EXPORT extern "C" BLOCK_LINKAGE
+#   else
+#       define BLOCK_EXPORT extern BLOCK_LINKAGE
 #   endif
 #endif
 

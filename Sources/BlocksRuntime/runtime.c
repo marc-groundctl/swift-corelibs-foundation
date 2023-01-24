@@ -8,6 +8,10 @@
 //
 
 #include "Block_private.h"
+
+// I don't know how this is supposed to get here, but it doesn't work without an explicit include
+#include "../../CoreFoundation/Base.subproj/SwiftRuntime/TargetConditionals.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
