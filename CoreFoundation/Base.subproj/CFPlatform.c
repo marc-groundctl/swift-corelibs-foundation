@@ -669,6 +669,7 @@ CF_EXPORT CFMutableStringRef _CFCreateApplicationRepositoryPath(CFAllocatorRef a
 #if TARGET_OS_WIN32
 
 CF_EXPORT void _NS_pthread_setname_np(const char *name) {
+    _CFThreadSetName(GetCurrentThread(), name);
 }
 
 static _CFThreadRef __initialPthread = INVALID_HANDLE_VALUE;
@@ -1645,6 +1646,8 @@ _CFThreadRef _CFThreadCreate(const _CFThreadAttributes attrs, void *_Nullable (*
 #endif
 }
 
+#endif
+
 CF_CROSS_PLATFORM_EXPORT int _CFThreadSetName(_CFThreadRef thread, const char *_Nonnull name) {
 #if TARGET_OS_MAC
     if (pthread_equal(pthread_self(), thread)) {
@@ -1677,6 +1680,8 @@ CF_CROSS_PLATFORM_EXPORT int _CFThreadSetName(_CFThreadRef thread, const char *_
     return 0;
 #endif
 }
+
+#if DEPLOYMENT_RUNTIME_SWIFT
 
 CF_CROSS_PLATFORM_EXPORT int _CFThreadGetName(char *buf, int length) {
 #if TARGET_OS_MAC

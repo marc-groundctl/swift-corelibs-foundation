@@ -745,7 +745,7 @@ CF_PRIVATE CFTypeID _CFGetNonObjCTypeID(CFTypeRef cf) {
     return __CFGenericTypeID_inline(cf);
 }
 
-static const char *const _CFGetTypeIDDescription(CFTypeID type) {
+static const char *_CFGetTypeIDDescription(CFTypeID type) {
     if (type < __CFRuntimeClassTableCount &&
         NULL != __CFRuntimeClassTable[type] &&
         _kCFRuntimeIDNotAType != type &&
@@ -1705,7 +1705,7 @@ static void _CFRelease(CFTypeRef CF_RELEASES_ARGUMENT cf) {
             allocator = CFGetAllocator(cf);
             usesSystemDefaultAllocator = _CFAllocatorIsSystemDefault(allocator);
 
-            if (__kCFAllocatorTypeID_CONST != __CFGenericTypeID_inline(cf)) {
+            if (_kCFRuntimeIDCFAllocator != __CFGenericTypeID_inline(cf)) {
                 allocatorToRelease = (CFAllocatorRef _Nonnull)__CFGetAllocator(cf);
             }
 	}
