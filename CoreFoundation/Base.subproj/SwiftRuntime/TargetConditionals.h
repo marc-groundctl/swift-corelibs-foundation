@@ -144,7 +144,7 @@
 #define TARGET_OS_WATCH         0
 #define TARGET_OS_TV            0
 
-#if __x86_64__
+#if __x86_64__ || _M_X64
 #define TARGET_CPU_PPC          0
 #define TARGET_CPU_PPC64        0
 #define TARGET_CPU_X86          0
@@ -188,7 +188,7 @@
 #define TARGET_CPU_MIPS64       0
 #define TARGET_CPU_S390X        0
 #define TARGET_CPU_WASM32       0
-#elif __i386__
+#elif __i386__ || _M_IX86
 #define TARGET_CPU_PPC          0
 #define TARGET_CPU_PPC64        0
 #define TARGET_CPU_X86          1
@@ -199,7 +199,7 @@
 #define TARGET_CPU_MIPS64       0
 #define TARGET_CPU_S390X        0
 #define TARGET_CPU_WASM32       0
-#elif __arm__
+#elif __arm__ || _M_ARM
 #define TARGET_CPU_PPC          0
 #define TARGET_CPU_PPC64        0
 #define TARGET_CPU_X86          0
@@ -258,7 +258,7 @@
 #error unknown architecture
 #endif
 
-#if __LITTLE_ENDIAN__ || (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__)
+#if __LITTLE_ENDIAN__ || (defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__) && __BYTE_ORDER__==__ORDER_LITTLE_ENDIAN__) || TARGET_OS_WINDOWS
 #define TARGET_RT_LITTLE_ENDIAN 1
 #define TARGET_RT_BIG_ENDIAN    0
 #elif __BIG_ENDIAN__ || (defined(__BYTE_ORDER__) && defined(__ORDER_BIG_ENDIAN__) && __BYTE_ORDER__==__ORDER_BIG_ENDIAN__)

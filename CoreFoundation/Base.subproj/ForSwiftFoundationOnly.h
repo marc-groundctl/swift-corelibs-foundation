@@ -12,7 +12,11 @@
 #define __COREFOUNDATION_FORSWIFTFOUNDATIONONLY__ 1
 
 #if !defined(CF_PRIVATE)
+#if defined(__clang__) || defined(__GNUC__)
 #define CF_PRIVATE extern __attribute__((__visibility__("hidden")))
+#elif defined(_MSC_VER)
+#define CF_PRIVATE extern
+#endif
 #endif
 
 #include <CoreFoundation/CFBase.h>
@@ -485,6 +489,10 @@ CF_EXPORT CFStringRef _CFXDGCreateRuntimeDirectoryPath(void);
 
 CF_CROSS_PLATFORM_EXPORT void __CFURLComponentsDeallocate(CFTypeRef cf);
 
+#if defined(_MSC_VER) && !defined(__clang__)
+#define _Bool int
+#endif
+
 typedef struct {
     void *_Nonnull memory;
     size_t capacity;
@@ -559,7 +567,11 @@ CF_CROSS_PLATFORM_EXPORT CFIndex __CFCharDigitValue(UniChar ch);
 #pragma mark - File Functions
 
 #if TARGET_OS_WIN32
+#if defined(__clang__) || defined(__GNUC__)
 CF_CROSS_PLATFORM_EXPORT int _CFOpenFileWithMode(const unsigned short *path, int opts, mode_t mode);
+#elif defined(_MSC_VER)
+CF_CROSS_PLATFORM_EXPORT int _CFOpenFileWithMode(const unsigned short *path, int opts, unsigned short mode);
+#endif
 #elif !TARGET_OS_WASI
 CF_CROSS_PLATFORM_EXPORT int _CFOpenFileWithMode(const char *path, int opts, mode_t mode);
 #endif
