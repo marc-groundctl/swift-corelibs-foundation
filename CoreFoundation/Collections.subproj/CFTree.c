@@ -329,14 +329,12 @@ void CFTreeAppendChild(CFTreeRef tree, CFTreeRef newChild) {
 }
 
 void CFTreeInsertSibling(CFTreeRef tree, CFTreeRef newSibling) {
-    CFAllocatorRef allocator;
     CF_ASSERT_TYPE(_kCFRuntimeIDCFTree, tree);
     CF_ASSERT_TYPE(_kCFRuntimeIDCFTree, newSibling);
     CFAssert1(NULL != tree->_parent, __kCFLogAssertion, "%s(): tree must have a parent", __PRETTY_FUNCTION__);
     CFAssert1(NULL == newSibling->_parent, __kCFLogAssertion, "%s(): must remove newSibling from previous parent first", __PRETTY_FUNCTION__);
     CFAssert1(NULL == newSibling->_sibling, __kCFLogAssertion, "%s(): must remove newSibling from previous parent first", __PRETTY_FUNCTION__);
     CFRetain(newSibling);
-    allocator = CFGetAllocator(tree);
     *((void **)&newSibling->_parent) = tree->_parent;
     *((void **)&newSibling->_sibling) = tree->_sibling;
     *((void **)&tree->_sibling) = newSibling;

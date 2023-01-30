@@ -468,19 +468,20 @@ static bool _CFGetPathFromFileDescriptor(int fd, char *path) {
     if (wszPath == NULL)
       return false;
 
-    if (GetFinalPathNameByHandleW(hFile, wszPath, dwLength, 0) != dwLength - 1) {
+    if (GetFinalPathNameByHandleW(hFile, wszPath, dwLength, 0) !=
+        dwLength - 1) {
       free(wszPath);
       return false;
     }
 
-    CFStringRef location =
-        CFStringCreateWithBytes(kCFAllocatorSystemDefault,
-                                (const UInt8 *)wszPath, dwLength - 1,
-                                kCFStringEncodingUTF16, false);
-    path = strdup(CFStringGetCStringPtr(location, kCFStringEncodingUTF8));
+    CFStringRef location = CFStringCreateWithBytes(
+        kCFAllocatorSystemDefault, (const UInt8 *)wszPath, dwLength - 1,
+        kCFStringEncodingUTF16, false);
+    Boolean ret =
+        CFStringGetCString(location, path, PATH_MAX, kCFStringEncodingUTF8);
     CFRelease(location);
     free(wszPath);
-    return true;
+    return ret;
 }
 
 #else
